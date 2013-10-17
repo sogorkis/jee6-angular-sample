@@ -1,0 +1,3 @@
+#!/bin/sh
+
+phantomjs /usr/local/lib/crawljs/crawl.js $@

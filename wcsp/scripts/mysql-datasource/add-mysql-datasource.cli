@@ -1,0 +1,25 @@
+connect
+batch
+
+# Add mysql JDBC driver
+/subsystem=datasources/jdbc-driver=mysql:add( \
+    driver-name=mysql, \
+    driver-module-name=com.mysql.jdbc, \
+    driver-xa-datasource-class-name=com.mysql.jdbc.jdbc2.optional.MysqlXADataSource \
+)
+
+# Add a non-XA datasource
+data-source add --name=${datasourceName} --driver-name=mysql \
+    --connection-url=${connectionUrl} \
+    --jndi-name=java:jboss/datasources/${datasourceName} \
+    --user-name=${username} \
+    --password=${password} \
+    --use-ccm=true \
+    --max-pool-size=25 \
+    --blocking-timeout-wait-millis=5000 \
+    --new-connection-sql="select 1;"
+data-source enable --name=${datasourceName}
+
+# Execute and reload
+run-batch
+:reload

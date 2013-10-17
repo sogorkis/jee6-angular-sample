@@ -1,0 +1,45 @@
+<VirtualHost *:80>
+	ServerAdmin webmaster@localhost
+	ServerName wcsp
+
+	DocumentRoot /var/www/wcsp
+	<Directory />
+		Options FollowSymLinks
+		AllowOverride None
+	</Directory>
+	<Directory /var/www/wcsp>
+		Options Indexes FollowSymLinks MultiViews
+		AllowOverride All
+		Order allow,deny
+		allow from all
+	</Directory>
+
+	ProxyRequests Off
+	ProxyPreserveHost On
+
+	<Proxy *>
+    		Order deny,allow
+		Allow from all
+	</Proxy>
+
+	ProxyPass /js !
+	ProxyPass /css !
+	ProxyPass /img !
+	ProxyPass /partials !
+	ProxyPassMatch ^/index\.html$ !
+	ProxyPassMatch ^/$ !
+
+	ProxyPass / http://localhost:8080/wcsp/
+	ProxyPassReverse / http://localhost:8080/wcsp/
+	ProxyPassReverseCookiePath /wcsp /
+	ProxyPassReverseCookieDomain localhost wcsp
+
+	ErrorLog ${APACHE_LOG_DIR}/error_wcsp.log
+
+	# Possible values include: debug, info, notice, warn, error, crit,
+	# alert, emerg.
+	LogLevel warn
+
+	CustomLog ${APACHE_LOG_DIR}/access_wcsp.log combined
+
+</VirtualHost>
