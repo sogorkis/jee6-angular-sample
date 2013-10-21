@@ -25,7 +25,6 @@ echo "Filling template ${CLIENT_BATCH_FILE}"
 cat ${CLIENT_BATCH_TEMPLATE} | sed -e "s/\${datasourceName}/${DATASOURCE_NAME}/" -e "s/\${connectionUrl}/${CONNECTION_URL}/" -e "s/\${username}/${USERNAME}/" -e "s/\${password}/${PASSWORD}/" | sed ':a;N;$!ba;s/\\\n//g' > ${CLIENT_BATCH_FILE}
 
 echo "Creating new DS: ${DATASOURCE_NAME}"
-#cat ${CLIENT_BATCH_FILE}
 ${JBOSS_HOME}/bin/jboss-cli.sh --connect --file=${CLIENT_BATCH_FILE}
 
 echo "Cleanup"

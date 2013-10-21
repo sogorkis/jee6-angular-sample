@@ -1,0 +1,28 @@
+connect
+batch
+
+# Add mysql security domain
+/subsystem=security/security-domain=db-web-domain:add
+
+/subsystem=security/security-domain=db-web-domain/authentication=classic:add( \
+    login-modules=[ \
+        { \
+            "code" => "net.ogorkis.security.UserRoleLoginModule", \
+            "flag" => "required", \
+            "module-options" => [ \
+                ("unauthenticatedIdentity"=>"guest"), \
+                ("dsJndiName"=>"java:jboss/datasources/${datasourceName}"), \
+                ("principalsQuery"=>"SELECT password_hash, password_salt, remember_me_token, remember_me_expiration FROM users WHERE email = ?"), \
+                ("rolesQuery" => "SELECT ur.name, 'Roles' FROM user_roles ur INNER JOIN users u ON ur.user_id = u.id WHERE u.email =?"), \
+                ("principalsRememberMeQuery" => "SELECT password_hash, password_salt, remember_me_expiration FROM users WHERE remember_me_token = ?"), \
+                ("rememberMeCookieName" => "REMEMBERME"), \
+                ("hashAlgorithm" => "MD5"), \
+                ("hashEncoding" => "RFC2617") \
+            ] \
+        } \
+    ] \
+) {allow-resource-service-restart=true}
+
+# Execute and reload
+run-batch
+:reload

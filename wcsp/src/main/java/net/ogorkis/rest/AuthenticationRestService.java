@@ -1,96 +1,93 @@
 package net.ogorkis.rest;
 
-import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
-
-import java.io.IOException;
+import com.google.common.base.Strings;
+import net.ogorkis.data.UserRepo;
+import net.ogorkis.exceptions.NotAuthorizedException;
+import net.ogorkis.model.User;
+import net.ogorkis.util.HttpServletUtils;
+import org.slf4j.Logger;
 
 import javax.inject.Inject;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
+import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
+import java.io.IOException;
 
-import net.ogorkis.data.AppUserRepo;
-import net.ogorkis.model.AppUser;
-
-import org.slf4j.Logger;
+import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 
 @Path("/auth")
 public class AuthenticationRestService {
 
-	@Inject
-	private Logger logger;
+    @Inject
+    private Logger logger;
 
-	@Inject
-	private AppUserRepo appUserRepo;
+    @Inject
+    private UserRepo userRepo;
 
-	@POST
-	@Path("/login")
-	@Produces(APPLICATION_JSON)
-	public AppUser login(@QueryParam("username") String username,
-			@QueryParam("password") String password,
-			@Context HttpServletRequest httpRequest,
-			@Context HttpServletResponse httpResponse) throws IOException {
+    @POST
+    @Path("/login")
+    @Produces(APPLICATION_JSON)
+    public User login(@QueryParam("username") String username,
+                      @QueryParam("password") String password,
+                      @Context HttpServletRequest httpRequest,
+                      @Context HttpServletResponse httpResponse) throws IOException {
 
-		logger.info("logging username: {}, password: ***", username);
+        logger.info("logging username: {}, password: ***", username);
 
-		try {
-			// force creation of JSESSIONID cookie
-			HttpSession session = httpRequest.getSession();
+        try {
+            // force creation of JSESSIONID cookie
+            HttpSession session = httpRequest.getSession();
 
-			httpRequest.login(username, password);
+            httpRequest.login(username, password);
 
-			logger.info("logging username: {} - successful", username);
+            logger.info("logging username: {} - successful", username);
 
-			session.setAttribute("username", username);
+            session.setAttribute("username", username);
 
-			return appUserRepo.findAppUser(username);
-		} catch (ServletException e) {
-			e.printStackTrace();
-			logger.info("logging username: {} - failed", username);
+            return userRepo.findByEmail(username);
+        } catch (ServletException e) {
+            logger.info("logging username: {} - failed", username);
 
-			httpResponse.sendError(HttpServletResponse.SC_FORBIDDEN, e.getMessage());
-		}
+            throw new NotAuthorizedException(e.getMessage());
+        }
+    }
 
-		return null;
-	}
+    @POST
+    @Path("/getAppUser")
+    public User getAppUser(@Context HttpServletRequest httpRequest) {
+        HttpSession session = httpRequest.getSession(false);
+        if (session != null) {
+            String username = (String) session.getAttribute("username");
 
-	@POST
-	@Path("/getAppUser")
-	public AppUser getAppUser(@Context HttpServletRequest httpRequest) {
-		HttpSession session = httpRequest.getSession(false);
-		if (session == null) {
-			return null;
-		}
+            return userRepo.findByEmail(username);
+        }
 
-		String username = (String) session.getAttribute("username");
+        if (HttpServletUtils.isCookieSet(httpRequest, "REMEMBERME")) {
+            // TODO
+        }
 
-		return appUserRepo.findAppUser(username);
-	}
+        return  null;
+    }
 
-	@POST
-	@Path("/logout")
-	public void logout(@Context HttpServletRequest httpRequest,
-			@Context HttpServletResponse httpResponse)
-					throws IOException {
-		httpResponse.setHeader("Cache-Control", "no-cache, no-store");
-		httpResponse.setHeader("Pragma", "no-cache");
+    @POST
+    @Path("/logout")
+    public void logout(@Context HttpServletRequest httpRequest,
+                       @Context HttpServletResponse httpResponse)
+            throws IOException {
+        httpResponse.setHeader("Cache-Control", "no-cache, no-store");
+        httpResponse.setHeader("Pragma", "no-cache");
 
-		HttpSession session = httpRequest.getSession(false);
-		if (session != null) {
-			String username = (String) session.getAttribute("username");
+        HttpSession session = httpRequest.getSession(false);
+        if (session != null) {
+            String username = (String) session.getAttribute("username");
 
-			logger.info("logging out username: {}, password: ***", username);
-			
-			session.invalidate();
-		}
+            logger.info("logging out username: {}, password: ***", username);
 
-		httpResponse.sendRedirect(httpRequest.getContextPath() + "/");
-	}
+            session.invalidate();
+        }
+    }
 
 }

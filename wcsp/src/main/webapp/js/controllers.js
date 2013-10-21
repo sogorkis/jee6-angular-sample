@@ -7,22 +7,22 @@ angular.module('myApp.controllers', []).
 
     }])
     .controller('TryCtrl', ['$scope', '$http', function ($scope, $http) {
-    	
-    	$scope.loadedHTML = null;
 
-    	$scope.load = function() {
-    		$http({url: '/crawler', method: 'GET',
-    			params: {
-    				url: $scope.loadURL
-    			}})
+        $scope.loadedHTML = null;
+
+        $scope.load = function () {
+            $http({url: '/crawler', method: 'GET',
+                params: {
+                    url: $scope.loadURL
+                }})
                 .success(function (response) {
-                	$scope.loadedHTML = response;
+                    $scope.loadedHTML = response;
                 });
-    	};
+        };
     }])
     .controller('LoginCtrl', ['$scope' , '$http', function ($scope, $http) {
 
-    	$scope.logggedInUsername = null;
+        $scope.logggedInUsername = null;
         $scope.loggedIn = false;
 
         $scope.login = function () {
@@ -33,22 +33,28 @@ angular.module('myApp.controllers', []).
                 }
             })
                 .success(function (response) {
-                	$scope.logggedInUsername = response.name;
+                    $scope.logggedInUsername = response.name;
                     $scope.loggedIn = true;
+                })
+                .error(function(response) {
+                    alert(response);
                 });
         };
-        
-        $scope.logout = function() {
-        	$http({url: '/rest/auth/logout', method: 'POST'})
-                .success(function (response) {
-                	$scope.logggedInUsername = null;
+
+        $scope.logout = function () {
+            $http({url: '/rest/auth/logout', method: 'POST'})
+                .success(function () {
+                    $scope.logggedInUsername = null;
                     $scope.loggedIn = false;
+                })
+                .error(function(response) {
+                    alert(response);
                 });
         }
     }])
     .controller('RequestsCtrl', ['$scope', '$http', '$location', '$cookies', function ($scope, $http, $location, $cookies) {
 
-    	$scope.requests = $http({url: '/rest/user/crawl-requests', method: 'GET', params: {
+        $scope.requests = $http({url: '/rest/user/crawl-requests', method: 'GET', params: {
             urlPart: $scope.searchURL
         }})
             .success(function (response) {
@@ -57,8 +63,7 @@ angular.module('myApp.controllers', []).
 
         $scope.search = function () {
             $scope.requests = $http({url: '/rest/user/crawl-requests', method: 'GET', params: {
-            	urlPart: $scope.searchURL}
-            , headers: {'Authentication' : 'Basic ' + $cookies.JSESSIONID}
+                urlPart: $scope.searchURL}, headers: {'Authentication': 'Basic ' + $cookies.JSESSIONID}
             })
                 .success(function (response) {
                     $scope.requests = response;
@@ -68,7 +73,7 @@ angular.module('myApp.controllers', []).
         $scope.resetSearch = function () {
             $scope.searchURL = null;
             $scope.requests = $http({url: '/rest/user/crawl-requests', method: 'GET', params: {
-            	urlPart: $scope.searchURL}})
+                urlPart: $scope.searchURL}})
                 .success(function (response) {
                     $scope.requests = response;
                 });
