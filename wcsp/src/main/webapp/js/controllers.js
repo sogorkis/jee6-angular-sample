@@ -3,8 +3,32 @@
 /* Controllers */
 
 angular.module('myApp.controllers', []).
-    controller('RegisterCtrl', [function () {
+    controller('RegisterCtrl', ['$scope', '$rootScope', '$location', 'Register', function ($scope, $rootScope, $location, Register) {
 
+        $scope.username = null;
+        $scope.email = null;
+        $scope.password = null;
+        $scope.repeatPassword = null;
+        $scope.validationMessages = null;
+
+        $scope.reset = function () {
+            $scope.username = null;
+            $scope.email = null;
+            $scope.password = null;
+            $scope.repeatPassword = null;
+        };
+
+        $scope.register = function () {
+            Register.register($scope.email, $scope.username, $scope.password,
+                function () {
+                    // TODO: autologin after registration
+                    //$rootScope.$broadcast('userRegistered', { username: $scope.email, password: $scope.password });
+                    $location.path("/");
+                },
+                function (response) {
+                    $scope.validationMessages = response;
+                });
+        };
     }])
     .controller('TryCtrl', ['$scope', '$http', function ($scope, $http) {
 
@@ -20,36 +44,44 @@ angular.module('myApp.controllers', []).
                 });
         };
     }])
-    .controller('LoginCtrl', ['$scope' , '$http', function ($scope, $http) {
+    .controller('LoginCtrl', ['$scope', 'Authenticator', function ($scope, Authenticator) {
 
-        $scope.logggedInUsername = null;
+        $scope.userData = null;
         $scope.loggedIn = false;
 
         $scope.login = function () {
-            $http({url: '/rest/auth/login', method: 'POST',
-                params: {
-                    username: $scope.username,
-                    password: $scope.password
-                }
-            })
-                .success(function (response) {
-                    $scope.logggedInUsername = response.name;
-                    $scope.loggedIn = true;
-                })
-                .error(function(response) {
-                    alert(response);
-                });
+            login($scope.username, $scope.password);
         };
 
         $scope.logout = function () {
-            $http({url: '/rest/auth/logout', method: 'POST'})
-                .success(function () {
-                    $scope.logggedInUsername = null;
-                    $scope.loggedIn = false;
-                })
-                .error(function(response) {
+            Authenticator.logout();
+
+            setUserData(null);
+        };
+
+        $scope.init = function () {
+            Authenticator.getSessionUser(function (userData) {
+                setUserData(userData)
+            });
+        };
+
+        $scope.$on('userRegistered', function (registeredData) {
+            login(registeredData.username, registeredData.password);
+        });
+
+        function login(username, password) {
+            Authenticator.login(username, password,
+                function (userData) {
+                    setUserData(userData)
+                },
+                function (response) {
                     alert(response);
                 });
+        }
+
+        function setUserData(userData) {
+            $scope.userData = userData;
+            $scope.loggedIn = userData != null;
         }
     }])
     .controller('RequestsCtrl', ['$scope', '$http', '$location', '$cookies', function ($scope, $http, $location, $cookies) {
@@ -63,7 +95,7 @@ angular.module('myApp.controllers', []).
 
         $scope.search = function () {
             $scope.requests = $http({url: '/rest/user/crawl-requests', method: 'GET', params: {
-                urlPart: $scope.searchURL}, headers: {'Authentication': 'Basic ' + $cookies.JSESSIONID}
+                urlPart: $scope.searchURL}
             })
                 .success(function (response) {
                     $scope.requests = response;

@@ -1,9 +1,8 @@
 package net.ogorkis.rest;
 
-import com.google.common.base.Strings;
 import net.ogorkis.data.UserRepo;
-import net.ogorkis.exceptions.NotAuthorizedException;
 import net.ogorkis.model.User;
+import net.ogorkis.rest.exceptions.NotAuthorizedException;
 import net.ogorkis.util.HttpServletUtils;
 import org.slf4j.Logger;
 
@@ -17,6 +16,7 @@ import javax.ws.rs.core.Context;
 import java.io.IOException;
 
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
+import static net.ogorkis.rest.preconditions.Preconditions.checkPropertyNotEmpty;
 
 @Path("/auth")
 public class AuthenticationRestService {
@@ -32,20 +32,24 @@ public class AuthenticationRestService {
     @Produces(APPLICATION_JSON)
     public User login(@QueryParam("username") String username,
                       @QueryParam("password") String password,
-                      @Context HttpServletRequest httpRequest,
-                      @Context HttpServletResponse httpResponse) throws IOException {
+                      @Context HttpServletRequest httpRequest) throws IOException {
+        checkPropertyNotEmpty(username, "username");
+        checkPropertyNotEmpty(password, "password");
 
         logger.info("logging username: {}, password: ***", username);
 
         try {
+            boolean userAuthenticated = httpRequest.getRemoteUser() != null;
+            if (userAuthenticated) {
+                return userRepo.findByEmail(username);
+            }
+
             // force creation of JSESSIONID cookie
-            HttpSession session = httpRequest.getSession();
+            httpRequest.getSession();
 
             httpRequest.login(username, password);
 
             logger.info("logging username: {} - successful", username);
-
-            session.setAttribute("username", username);
 
             return userRepo.findByEmail(username);
         } catch (ServletException e) {
@@ -55,21 +59,22 @@ public class AuthenticationRestService {
         }
     }
 
-    @POST
+    @GET
     @Path("/getAppUser")
     public User getAppUser(@Context HttpServletRequest httpRequest) {
-        HttpSession session = httpRequest.getSession(false);
-        if (session != null) {
-            String username = (String) session.getAttribute("username");
+        boolean userAuthenticated = httpRequest.getRemoteUser() != null;
+        if (userAuthenticated) {
 
-            return userRepo.findByEmail(username);
+            logger.info("Returning username: {} by JSESSIONID cookie", httpRequest.getRemoteUser());
+
+            return userRepo.findByEmail(httpRequest.getRemoteUser());
         }
 
         if (HttpServletUtils.isCookieSet(httpRequest, "REMEMBERME")) {
             // TODO
         }
 
-        return  null;
+        return null;
     }
 
     @POST
