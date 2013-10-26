@@ -50,7 +50,13 @@ angular.module('myApp.controllers', []).
         $scope.loggedIn = false;
 
         $scope.login = function () {
-            login($scope.username, $scope.password);
+            Authenticator.login($scope.username, $scope.password)
+                .success(function (userData) {
+                    setUserData(userData)
+                })
+                .failure(function (response) {
+                    alert(response);
+                });
         };
 
         $scope.logout = function () {
@@ -60,24 +66,10 @@ angular.module('myApp.controllers', []).
         };
 
         $scope.init = function () {
-            Authenticator.getSessionUser(function (userData) {
+            Authenticator.getUserFromSession(function (userData) {
                 setUserData(userData)
             });
         };
-
-        $scope.$on('userRegistered', function (registeredData) {
-            login(registeredData.username, registeredData.password);
-        });
-
-        function login(username, password) {
-            Authenticator.login(username, password,
-                function (userData) {
-                    setUserData(userData)
-                },
-                function (response) {
-                    alert(response);
-                });
-        }
 
         function setUserData(userData) {
             $scope.userData = userData;

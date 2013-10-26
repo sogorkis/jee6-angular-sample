@@ -6,19 +6,53 @@ angular.module('myApp.services', [])
             function ($http) {
                 var Authenticator = {};
 
-                Authenticator.login = function (username, password, success, error) {
+                Authenticator.login = function (username, password) {
+                    var loginFn = {};
+
+                    loginFn.successFn = null;
+                    loginFn.failureFn = null;
+                    loginFn.errorFn = null;
+
+                    loginFn.success = function (fn) {
+                        loginFn.successFn = fn;
+                        return loginFn;
+                    }
+
+                    loginFn.failure = function (fn) {
+                        loginFn.failureFn = fn;
+                        return loginFn;
+                    }
+
+                    loginFn.error = function (fn) {
+                        loginFn.errorFn = fn;
+                        return loginFn;
+                    }
+
                     $http({url: '/rest/auth/login', method: 'POST',
                         params: {
                             username: username,
                             password: password
                         }
                     })
-                        .success(function (response) {
-                            success(response);
+                        .success(function (data, status, headers, config) {
+                            if (loginFn.successFn != null) {
+                                loginFn.successFn(data, status, headers, config);
+                            }
                         })
-                        .error(function (response) {
-                            error(response);
+                        .error(function (data, status, headers, config) {
+                            // HTTP 401 unauthorized
+                            if (status == 401)  {
+                                if (loginFn.failureFn != null) {
+                                    loginFn.failureFn(data, status, headers, config);
+                                }
+                            } else {
+                                if (loginFn.errorFn != null) {
+                                    loginFn.errorFn(data, status, headers, config);
+                                }
+                            }
                         });
+
+                    return loginFn;
                 };
 
                 Authenticator.logout = function () {
@@ -28,7 +62,7 @@ angular.module('myApp.services', [])
                         });
                 };
 
-                Authenticator.getSessionUser = function (success) {
+                Authenticator.getUserFromSession = function (success) {
                     $http({url: '/rest/auth/getAppUser', method: 'GET'})
                         .success(function (response) {
                             if (response) {

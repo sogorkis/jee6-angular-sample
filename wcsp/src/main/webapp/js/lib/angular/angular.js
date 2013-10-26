@@ -13,7 +13,7 @@
  * @name angular.lowercase
  * @function
  *
- * @description Converts the specified string to lowercase.
+ * @description Converts the specified strhtting to lowercase.
  * @param {string} string String to be converted to lowercase.
  * @returns {string} Lowercased string.
  */
