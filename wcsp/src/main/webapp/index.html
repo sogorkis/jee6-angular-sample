@@ -30,7 +30,7 @@
                 </div>
 
 				<ul ng-show="loggedIn" class="nav pull-right" style="display: none;">
-					<li><a class="brand" href="#">Welcome {{userData.name}}</a></li>
+					<li><a class="brand" href="#">{{userData.name}}</a></li>
 					<li class="divider-vertical"></li>
 					<li class="dropdown">
 						<a class="dropdown-toggle" data-toggle="dropdown" href="#">Account</a>
@@ -51,6 +51,8 @@
         </div>
     </div>
 
+    <div class="messagesList" app-messages></div>
+
     <div class="container" ng-view></div>
 </div>
 <footer>
@@ -70,6 +72,7 @@
 <script src="js/controllers.js"></script>
 <script src="js/filters.js"></script>
 <script src="js/directives.js"></script>
+<script src="js/ui-bootstrap-tpls-0.6.0.min.js"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js"></script>
 <script src="js/bootstrap.min.js"></script>
 </body>
