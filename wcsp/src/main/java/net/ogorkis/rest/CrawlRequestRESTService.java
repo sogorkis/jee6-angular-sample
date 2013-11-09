@@ -30,7 +30,7 @@ public class CrawlRequestRESTService {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed("admin")
+    @RolesAllowed("user")
     public List<CrawlRequest> getRequests(
             @QueryParam("urlPart") final String urlPart,
             @QueryParam("maxResults") Integer maxResults,

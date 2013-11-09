@@ -1,7 +1,7 @@
 package net.ogorkis.security;
 
-import net.ogorkis.util.HttpServletUtils;
-import net.ogorkis.util.JNDIUtils;
+import net.ogorkis.jee6utils.jndi.JNDIUtils;
+import net.ogorkis.jee6utils.servlet.HttpServletUtils;
 import org.jboss.security.ErrorCodes;
 import org.jboss.security.auth.spi.DatabaseServerLoginModule;
 

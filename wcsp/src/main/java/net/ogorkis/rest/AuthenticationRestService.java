@@ -1,9 +1,9 @@
 package net.ogorkis.rest;
 
 import net.ogorkis.data.UserRepo;
+import net.ogorkis.jee6utils.servlet.HttpServletUtils;
 import net.ogorkis.model.User;
 import net.ogorkis.rest.exceptions.NotAuthorizedException;
-import net.ogorkis.util.HttpServletUtils;
 import org.slf4j.Logger;
 
 import javax.inject.Inject;

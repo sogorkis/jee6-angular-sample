@@ -3,12 +3,14 @@ package net.ogorkis.rest;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.hash.Hashing;
 import net.ogorkis.data.UserRepo;
+import net.ogorkis.mail.MailService;
 import net.ogorkis.model.User;
 import net.ogorkis.model.UserRole;
 import net.ogorkis.rest.exceptions.ExistingEmailException;
 import org.slf4j.Logger;
 
 import javax.inject.Inject;
+import javax.mail.MessagingException;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.QueryParam;
@@ -29,8 +31,8 @@ public class RegistrationRestService {
     @Inject
     private UserRepo userRepo;
 
-//    @Resource(lookup = "java:jboss/mail/Default")
-//    private Session mailSession;
+    @Inject
+    private MailService mailService;
 
     @POST
     public void register(@QueryParam("email") String email,
@@ -65,7 +67,11 @@ public class RegistrationRestService {
             throw new ExistingEmailException("Provided email is already registered");
         }
 
-        sendActivationEmail(user);
+        try {
+            mailService.sendRegistrationEmail(user);
+        } catch (MessagingException e) {
+            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+        }
     }
 
     private String generatePasswordSalt() {
@@ -83,15 +89,4 @@ public class RegistrationRestService {
         return ImmutableSet.of(userRole);
     }
 
-    private void sendActivationEmail(User user) {
-//        TODO:
-//        try {
-//            MimeMessage message = new MimeMessage(mailSession);
-//
-//            message.setFrom(new InternetAddress(""));
-//
-//        } catch (MessagingException e) {
-//            logger.error("MessagingException {}", e.getMessage(), e);
-//        }
-    }
 }
