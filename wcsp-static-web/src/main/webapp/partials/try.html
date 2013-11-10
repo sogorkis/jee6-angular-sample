@@ -1,0 +1,16 @@
+
+<div class="navbar">
+	<div class="navbar-inner">
+		<form class="navbar-form pull-left">
+			<span>URL</span> <input id="loadURL" ng-model="loadURL"
+				type="text" placeholder="url" class="span2">
+			<button class="btn" ng-click="load()" type="submit">GO!</button>
+		</form>
+	</div>
+</div>
+<div class="well well-small" style="max-height: 500px; overflow: scroll;">
+<p>HTML code</p>
+<pre>
+	{{loadedHTML}}
+</pre>
+</div>
