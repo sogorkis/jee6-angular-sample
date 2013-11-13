@@ -6,9 +6,9 @@ import javax.ws.rs.core.Response;
 
 public class ExistingEmailException extends WebApplicationException {
 
-    public ExistingEmailException(String message) {
+    public ExistingEmailException() {
         super(Response.status(Response.Status.BAD_REQUEST)
-                .entity(message)
+                .entity(new ExceptionJsonResponse("email", "nonUniqueEmail"))
                 .type(MediaType.APPLICATION_JSON_TYPE)
                 .build());
     }

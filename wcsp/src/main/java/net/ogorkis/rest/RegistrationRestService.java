@@ -7,6 +7,7 @@ import net.ogorkis.mail.MailService;
 import net.ogorkis.model.User;
 import net.ogorkis.model.UserRole;
 import net.ogorkis.rest.exceptions.ExistingEmailException;
+import net.ogorkis.util.ExceptionUtils;
 import org.slf4j.Logger;
 
 import javax.inject.Inject;
@@ -61,16 +62,16 @@ public class RegistrationRestService {
         try {
             userRepo.save(user);
         } catch (Exception e) {
-            // TODO: hibernate validator + exception handling
-            logger.error("Error while persisting user {}", email);
-
-            throw new ExistingEmailException("Provided email is already registered");
+            if (ExceptionUtils.isConstraintViolationCause(e)) {
+                throw new ExistingEmailException();
+            }
+            throw e;
         }
 
         try {
             mailService.sendRegistrationEmail(user);
         } catch (MessagingException e) {
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+            logger.error("Error while sending email for user {}", user, e);
         }
     }
 

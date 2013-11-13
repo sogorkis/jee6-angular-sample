@@ -8,7 +8,7 @@ public class NotAuthorizedException extends WebApplicationException {
 
     public NotAuthorizedException(String message) {
         super(Response.status(Response.Status.UNAUTHORIZED)
-                .entity(message)
+                .entity(new ExceptionJsonResponse("authorization", message))
                 .type(MediaType.APPLICATION_JSON_TYPE)
                 .build());
     }

@@ -6,9 +6,9 @@ import javax.ws.rs.core.Response;
 
 public class InvalidRequestException extends WebApplicationException {
 
-    public InvalidRequestException(String message) {
+    public InvalidRequestException(String property, String message) {
         super(Response.status(Response.Status.BAD_REQUEST)
-                .entity(message)
+                .entity(new ExceptionJsonResponse(property, message))
                 .type(MediaType.APPLICATION_JSON_TYPE)
                 .build());
     }
