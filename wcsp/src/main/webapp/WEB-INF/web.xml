@@ -9,11 +9,11 @@
             <url-pattern>/rest/user/*</url-pattern>
         </web-resource-collection>
         <auth-constraint>
-            <role-name>admin</role-name>
+            <role-name>user</role-name>
         </auth-constraint>
     </security-constraint>
     <security-role>
-        <role-name>admin</role-name>
+        <role-name>user</role-name>
     </security-role>
 
 </web-app>
