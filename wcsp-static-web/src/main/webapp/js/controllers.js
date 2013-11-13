@@ -1,56 +1,47 @@
 'use strict';
 
 /* Controllers */
-
 angular.module('myApp.controllers', [])
     .controller('RegisterCtrl', ['$scope', '$rootScope', '$location', 'Register', function ($scope, $rootScope, $location, Register) {
 
-        $scope.username = null;
-        $scope.email = null;
-        $scope.password = null;
-        $scope.repeatPassword = null;
-        $scope.validationMessages = null;
+        $scope.user = {};
+
+        $scope.register = function (user) {
+            Register.register(user.email, user.username, user.password)
+                .success(function () {
+                    $location.path("/");
+
+                    $rootScope.$broadcast('userRegistered', user);
+                })
+                .failure(function (response) {
+                    if (response.validationErrors.email == 'nonUniqueEmail') {
+                        $scope.registrationForm.email.$setValidity('nonUniqueEmail', false);
+
+                        var passedEmail = user.email;
+                        $scope.$watch('registrationForm.email.$viewValue', function (inputValue) {
+                            if (inputValue != passedEmail) {
+                                $scope.registrationForm.email.$setValidity('nonUniqueEmail', true);
+                            }
+                        });
+                    }
+                    else {
+                        // TODO: global validation error handling
+                        alert('Unexpected error: ' + response);
+                    }
+                });
+        };
 
         $scope.reset = function () {
-            $scope.username = null;
-            $scope.email = null;
-            $scope.password = null;
-            $scope.repeatPassword = null;
-        };
-
-        $scope.register = function () {
-            Register.register($scope.email, $scope.username, $scope.password,
-                function () {
-                    // TODO: autologin after registration
-                    //$rootScope.$broadcast('userRegistered', { username: $scope.email, password: $scope.password });
-                    $location.path("/");
-                },
-                function (response) {
-                    $scope.validationMessages = response;
-                });
+            $scope.user = {};
         };
     }])
-    .controller('TryCtrl', ['$scope', '$http', function ($scope, $http) {
-
-        $scope.loadedHTML = null;
-
-        $scope.load = function () {
-            $http({url: '/crawler', method: 'GET',
-                params: {
-                    url: $scope.loadURL
-                }})
-                .success(function (response) {
-                    $scope.loadedHTML = response;
-                });
-        };
-    }])
-    .controller('LoginCtrl', ['$scope', 'Authenticator', function ($scope, Authenticator) {
+    .controller('LoginCtrl', ['$scope', '$location', 'Authenticator', function ($scope, $location, Authenticator) {
 
         $scope.userData = null;
         $scope.loggedIn = false;
 
-        $scope.login = function () {
-            Authenticator.login($scope.username, $scope.password)
+        var loginFn = function (username, password) {
+            Authenticator.login(username, password)
                 .success(function (userData) {
                     setUserData(userData)
                 })
@@ -59,10 +50,16 @@ angular.module('myApp.controllers', [])
                 });
         };
 
+        $scope.login = function () {
+            loginFn($scope.username, $scope.password);
+        };
+
         $scope.logout = function () {
             Authenticator.logout();
 
             setUserData(null);
+
+            $location.path("/");
         };
 
         $scope.init = function () {
@@ -75,8 +72,27 @@ angular.module('myApp.controllers', [])
             $scope.userData = userData;
             $scope.loggedIn = userData != null;
         }
+
+        $scope.$on('userRegistered', function (event, userData) {
+            loginFn(userData.email, userData.password);
+        });
     }])
-    .controller('RequestsCtrl', ['$scope', '$http', '$location', '$cookies', function ($scope, $http, $location, $cookies) {
+    .controller('TryCtrl', ['$scope', '$http', function ($scope, $http) {
+
+        $scope.loadURL = null;
+        $scope.loadedHTML = null;
+
+        $scope.load = function () {
+            $http({url: '/crawler', method: 'GET',
+                params: {
+                    url: $scope.loadURL
+                }})
+                .success(function (response) {
+                    $scope.loadedHTML = response;
+                });
+        };
+    }])
+    .controller('RequestsCtrl', ['$scope', '$http', function ($scope, $http) {
 
         $scope.requests = $http({url: '/rest/user/crawl-requests', method: 'GET', params: {
             urlPart: $scope.searchURL
@@ -102,7 +118,4 @@ angular.module('myApp.controllers', [])
                     $scope.requests = response;
                 });
         };
-    }])
-;
-
-
+    }]);

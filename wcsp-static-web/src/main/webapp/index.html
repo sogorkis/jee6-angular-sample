@@ -4,8 +4,8 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>WCSP - Web crawler support platform</title>
-    <link rel="stylesheet" href="css/app.css"/>
     <link rel="stylesheet" href="css/bootstrap.css"/>
+    <link rel="stylesheet" href="css/app.css"/>
     <link rel="shortcut icon" href="img/favicon.ico"/>
 </head>
 <body>
@@ -24,23 +24,25 @@
                 <div class="nav-collapse collapse">
                     <ul class="nav">
                         <li><a href="#/about"><i class="icon-book icon-white"></i> About</a></li>
-                        <li><a href="#/register" ng-hide="loggedIn"><i class="icon-pencil icon-white"></i> Register</a></li>
-                        <li><a href="#/requests" ng-show="loggedIn"><i class="icon-globe icon-white"></i> Requests</a></li>
+                        <li><a href="#/register" ng-hide="loggedIn"><i class="icon-pencil icon-white"></i> Register</a>
+                        </li>
+                        <li><a href="#/requests" ng-show="loggedIn"><i class="icon-globe icon-white"></i> Requests</a>
+                        </li>
                     </ul>
                 </div>
 
-				<ul ng-show="loggedIn" class="nav pull-right" style="display: none;">
-					<li><a class="brand" href="#">{{userData.name}}</a></li>
-					<li class="divider-vertical"></li>
-					<li class="dropdown">
-						<a class="dropdown-toggle" data-toggle="dropdown" href="#">Account</a>
-						<ul class="dropdown-menu">
-						<li><a href="#">Change password</a></li>
-						<li class="divider"></li>
-						<li><a ng-click="logout()">Logout</a></li>
-						</ul>
-					</li>
-				</ul>	
+                <ul ng-show="loggedIn" class="nav pull-right" style="display: none;">
+                    <li><a class="brand" href="#">{{userData.name}}</a></li>
+                    <li class="divider-vertical"></li>
+                    <li class="dropdown">
+                        <a class="dropdown-toggle" data-toggle="dropdown" href="#">Account</a>
+                        <ul class="dropdown-menu">
+                            <li><a href="#">Change password</a></li>
+                            <li class="divider"></li>
+                            <li><a ng-click="logout()">Logout</a></li>
+                        </ul>
+                    </li>
+                </ul>
 
                 <form ng-hide="loggedIn" class="navbar-form pull-right">
                     <input ng-model="username" class="span2" type="text" placeholder="username">
@@ -50,8 +52,6 @@
             </div>
         </div>
     </div>
-
-    <div class="messagesList" app-messages></div>
 
     <div class="container" ng-view></div>
 </div>

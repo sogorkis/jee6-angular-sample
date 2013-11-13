@@ -78,7 +78,22 @@ angular.module('myApp.services', [])
         function ($http) {
             var Registration = {};
 
-            Registration.register = function (email, username, password, success, error) {
+            Registration.register = function (email, username, password) {
+                var registerFn = {};
+
+                registerFn.successFn = null;
+                registerFn.failureFn = null;
+
+                registerFn.success = function (fn) {
+                    registerFn.successFn = fn;
+                    return registerFn;
+                }
+
+                registerFn.failure = function (fn) {
+                    registerFn.failureFn = fn;
+                    return registerFn;
+                }
+
                 $http({url: '/rest/register', method: 'POST',
                     params: {
                         username: username,
@@ -86,12 +101,18 @@ angular.module('myApp.services', [])
                         email: email
                     }
                 })
-                    .success(function (response) {
-                        success(response);
+                    .success(function (data, status, headers, config) {
+                        if (registerFn.successFn != null) {
+                            registerFn.successFn(data, status, headers, config);
+                        }
                     })
-                    .error(function (response) {
-                        error(response);
+                    .error(function (data, status, headers, config) {
+                        if (registerFn.failureFn != null) {
+                            registerFn.failureFn(data, status, headers, config);
+                        }
                     });
+
+                return registerFn;
             };
 
             return Registration;

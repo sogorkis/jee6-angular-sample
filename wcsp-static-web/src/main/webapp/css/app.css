@@ -51,3 +51,6 @@ footer a {
     color: #ffffff;
 }
 
+.control-group.success .control-label {
+    color: #333333 !important;
+}

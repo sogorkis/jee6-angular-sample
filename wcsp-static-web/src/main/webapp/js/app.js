@@ -17,8 +17,11 @@ var myApp = angular.module('myApp', ['myApp.filters', 'myApp.services', 'myApp.d
                     return response;
                 }, function (response) {
                     switch (response.status) {
+                        case 400:
+                            // BAD REQUEST - do nothing
+                            break;
                         case 401:
-                            // do nothing
+                            // AUTHENTICATION failure - do nothing
                             break;
                         case 403:
                             alert('You do not have permissions for this action');
