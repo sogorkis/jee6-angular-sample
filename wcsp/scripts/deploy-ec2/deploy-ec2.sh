@@ -5,7 +5,7 @@
 SSH_KEY=$1
 WAR_NAME=wcsp.war
 REMOTE_USER=jboss
-REMOTE_HOST=ec2-54-200-187-38.us-west-2.compute.amazonaws.com
+REMOTE_HOST=ogorkis.net
 
 echo "Copying war: ${WAR_NAME}"
 scp -i ${SSH_KEY} target/${WAR_NAME} ${REMOTE_USER}@${REMOTE_HOST}:~/deploy/wars
