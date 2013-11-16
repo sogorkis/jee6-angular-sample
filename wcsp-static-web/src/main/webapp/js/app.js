@@ -2,7 +2,7 @@
 
 
 // Declare app level module which depends on filters, and services
-var myApp = angular.module('myApp', ['myApp.filters', 'myApp.services', 'myApp.directives', 'myApp.controllers', 'ngCookies', 'ui.bootstrap'])
+var myApp = angular.module('myApp', ['myApp.filters', 'myApp.services', 'myApp.directives', 'myApp.controllers', 'ngRoute', 'ngCookies', 'ui.bootstrap'])
     .config(['$routeProvider', '$provide', '$httpProvider', function ($routeProvider, $provide, $httpProvider) {
         $routeProvider.when('/', {templateUrl: 'partials/home.html'});
         $routeProvider.when('/about', {templateUrl: 'partials/about.html'});

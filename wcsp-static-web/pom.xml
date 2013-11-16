@@ -67,7 +67,14 @@
                     <preloadSources>
                         <preloadSource>lib/jquery.min.js</preloadSource>
                         <preloadSource>lib/angular/angular.min.js</preloadSource>
+                        <preloadSource>lib/angular/angular-mocks.js</preloadSource>
                     </preloadSources>
+                    <sourceExcludes>
+                        <sourceExclude>lib/angular/angular-loader.js</sourceExclude>
+                        <sourceExclude>lib/angular/angular-loader.min.js</sourceExclude>
+                        <sourceExclude>lib/angular/angular-scenario.js</sourceExclude>
+                    </sourceExcludes>
+
                     <webDriverClassName>org.openqa.selenium.phantomjs.PhantomJSDriver</webDriverClassName>
                 </configuration>
             </plugin>
