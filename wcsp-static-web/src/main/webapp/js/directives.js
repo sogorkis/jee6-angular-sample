@@ -147,5 +147,15 @@ angular.module('myApp.directives', [])
             }
 
         };
-    });
+    })
+    .directive("loader", ['$rootScope', function ($rootScope) {
+        return function ($scope, element) {
+            $scope.$on("loader_show", function () {
+                return jQuery('#' + element.attr("id")).show();
+            });
+            return $scope.$on("loader_hide", function () {
+                return jQuery('#' + element.attr("id")).hide();
+            });
+        };
+    }]);
 

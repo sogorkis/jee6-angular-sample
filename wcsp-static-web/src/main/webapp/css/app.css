@@ -39,6 +39,7 @@ footer {
     padding: 10px 0;
     text-align: center;
     background-color: #1B1B1B;
+    z-index: 1200;
 }
 
 #wrapper {
@@ -53,4 +54,25 @@ footer a {
 
 .control-group.success .control-label {
     color: #333333 !important;
+}
+
+#loaderDiv {
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 1020;
+    background-color: white;
+    opacity: .2;
+    display: none;
+}
+
+.ajax-loader {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    margin-left: -64px; /* -1 * image width / 2 */
+    margin-top: -64px; /* -1 * image height / 2 */
+    display: block;
 }

@@ -11,11 +11,49 @@ var myApp = angular.module('myApp', ['myApp.filters', 'myApp.services', 'myApp.d
         $routeProvider.when('/requests', {templateUrl: 'partials/requests.html', controller: 'RequestsCtrl'});
         $routeProvider.otherwise({redirectTo: '/view1'});
 
-        $provide.factory('myHttpInterceptor', ['$q', function ($q) {
-            return function (promise) {
-                return promise.then(function (response) {
-                    return response;
-                }, function (response) {
+//        $provide.factory('myHttpInterceptor', ['$q', function ($q) {
+//            return function (promise) {
+//                return promise.then(function (response) {
+//                    return response;
+//                }, function (response) {
+
+//                    return $q.reject(response);
+//                });
+//            }
+//        }]);
+//
+//        $httpProvider.responseInterceptors.push('myHttpInterceptor');
+
+        $provide.factory('myHttpInterceptor', ['$q', '$rootScope', function ($q, $rootScope) {
+            var numLoadings = 0;
+
+            return {
+                request: function (config) {
+
+                    numLoadings++;
+
+                    // Show loader
+                    $rootScope.$broadcast("loader_show");
+                    return config || $q.when(config)
+
+                },
+                response: function (response) {
+
+                    if ((--numLoadings) === 0) {
+                        // Hide loader
+                        $rootScope.$broadcast("loader_hide");
+                    }
+
+                    return response || $q.when(response);
+
+                },
+                responseError: function (response) {
+
+                    if (!(--numLoadings)) {
+                        // Hide loader
+                        $rootScope.$broadcast("loader_hide");
+                    }
+
                     switch (response.status) {
                         case 400:
                             // BAD REQUEST - do nothing
@@ -32,12 +70,15 @@ var myApp = angular.module('myApp', ['myApp.filters', 'myApp.services', 'myApp.d
                         default:
                             alert('Error ' + response.status + " : " + response.data);
                     }
-                    return $q.reject(response);
-                });
-            }
-        }]);
 
-        $httpProvider.responseInterceptors.push('myHttpInterceptor');
+                    return $q.reject(response);
+                }
+            }
+        }
+        ])
+        ;
+
+        $httpProvider.interceptors.push('myHttpInterceptor');
 
     }]);
 
