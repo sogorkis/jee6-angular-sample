@@ -3,21 +3,24 @@
         <legend>Registration</legend>
 
         <div control-group label="Name">
-            <input id="name" name="name" ng-model="user.username" placeholder="Name" type="text" required>
+            <input id="registerName" name="name" ng-model="user.username" placeholder="Name" type="text"
+                   ng-minlength="5" ng-maxlength="255" required>
         </div>
 
         <div control-group label="Email">
-            <input id="email" name="email" ng-model="user.email" placeholder="Email" type="email" required>
+            <input id="registerEmail" name="email" ng-model="user.email" placeholder="Email" type="email"
+                   ng-minlength="5" ng-maxlength="255" required>
         </div>
 
         <div control-group label="Password">
-            <input id="password" name="password" ng-model="user.password" placeholder="Password" type="password"
-                   required>
+            <input id="registerPassword" name="password" ng-model="user.password" placeholder="Password" type="password"
+                   ng-minlength="5" required>
         </div>
 
         <div control-group label="Repeat password">
-            <input id="passwordConfirm" name="passwordConfirm" ng-model="user.confirmPassword" placeholder="Password"
-                   type="password" required>
+            <input id="registerPasswordConfirm" name="passwordConfirm" ng-model="user.confirmPassword"
+                   placeholder="Password" type="password" same-as="registerPassword"
+                   not-same-error-key="notSamePassword" required>
         </div>
 
     </fieldset>

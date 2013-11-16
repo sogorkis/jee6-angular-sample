@@ -6,16 +6,30 @@
 angular.module('myApp.directives', [])
     .directive('sameAs', function () {
         return {
-            require: 'ngModel',
-            link: function (scope, elm, attrs, ctrl) {
-                ctrl.$parsers.unshift(function (viewValue) {
-                    if (viewValue === scope[attrs.sameAs]) {
-                        ctrl.$setValidity('sameAs', true);
-                        return viewValue;
-                    } else {
-                        ctrl.$setValidity('sameAs', false);
-                        return undefined;
-                    }
+            restrict: 'A',
+            require: "ngModel",
+            link: function (scope, element, attrs, ctrl) {
+                var trackedElement = jQuery('#' + attrs.sameAs);
+                var trackingElement = jQuery('#' + element.attr("id"));
+
+                var checkValuesEqual = function () {
+                    scope.$apply(function () {
+                        if (trackedElement.val() == trackingElement.val()) {
+                            ctrl.$setValidity(attrs.notSameErrorKey, true);
+                        } else {
+                            ctrl.$setValidity(attrs.notSameErrorKey, false);
+                        }
+                    });
+                };
+
+                // watch for any input changes on tracked element
+                trackedElement.on('blur keypress', function () {
+                    checkValuesEqual();
+                });
+
+                // watch for any input changes on tracking element
+                trackingElement.on('blur keypress', function () {
+                    checkValuesEqual();
                 });
             }
         };
@@ -74,6 +88,13 @@ angular.module('myApp.directives', [])
                                     return "Invalid email";
                                 case 'nonUniqueEmail':
                                     return "Provided email is already registered";
+                                // TODO: read min, max length from element
+                                case 'minlength':
+                                    return "Field should have more than 5 characters";
+                                case 'maxlength':
+                                    return "Field should have less than 255 characters";
+                                case 'notSamePassword':
+                                    return "Passwords are not equal";
                                 default:
                                     return errorKey;
                             }
