@@ -36,18 +36,7 @@ angular.module('myApp.directives', [])
     })
     .directive("controlGroup", function () {
         return {
-            template: '<div class="control-group" ng-class="controlGroupClass">\
-                    <label class="control-label" for="{{for}}">{{label}}</label>\
-                    <div class="controls">\
-                        <span ng-transclude></span>\
-                        <div class="help-inline" ng-show="isInvalid">\
-                            <label for="{{for}}" class="error">&#10008; {{errorMessage}}</label>\
-                        </div>\
-                        <div class="help-inline" ng-show="isSuccess">\
-                            <span>&#x2713;</span>\
-                        </div>\
-                    </div>\
-                    </div>',
+            templateUrl: '/partials/templates/controlGroup.html',
 
             replace: true,
             transclude: true,
