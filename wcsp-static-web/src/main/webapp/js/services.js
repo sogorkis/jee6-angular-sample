@@ -23,11 +23,6 @@ angular.module('myApp.services', [])
                         return loginFn;
                     };
 
-                    loginFn.error = function (fn) {
-                        loginFn.errorFn = fn;
-                        return loginFn;
-                    };
-
                     $http({url: '/rest/auth/login', method: 'POST',
                         params: {
                             username: username,
@@ -41,14 +36,8 @@ angular.module('myApp.services', [])
                         })
                         .error(function (data, status, headers, config) {
                             // HTTP 401 unauthorized
-                            if (status == 401) {
-                                if (loginFn.failureFn != null) {
-                                    loginFn.failureFn(data, status, headers, config);
-                                }
-                            } else {
-                                if (loginFn.errorFn != null) {
-                                    loginFn.errorFn(data, status, headers, config);
-                                }
+                            if (status == 401 && loginFn.failureFn != null) {
+                                loginFn.failureFn(data, status, headers, config);
                             }
                         });
 
@@ -107,7 +96,8 @@ angular.module('myApp.services', [])
                         }
                     })
                     .error(function (data, status, headers, config) {
-                        if (registerFn.failureFn != null) {
+                        // HTTP 400 bad request
+                        if (status == 400 && registerFn.failureFn != null) {
                             registerFn.failureFn(data, status, headers, config);
                         }
                     });
@@ -117,59 +107,53 @@ angular.module('myApp.services', [])
 
             return Registration;
         }
-    ]);
+    ])
+    .factory('GlobalErrors', ['$rootScope', '$location', function ($rootScope, $location) {
+        var GlobalErrors = {};
 
-//angular
-//    .module('globalErrors', [])
-//    .config(function ($provide, $httpProvider, $compileProvider) {
-//        var elementsList = $();
-//
-//        var showMessage = function (content, cl, time) {
-//            $('<div/>')
-//                .addClass('message')
-//                .addClass(cl)
-//                .hide()
-//                .fadeIn('fast')
-//                .delay(time)
-//                .fadeOut('fast', function () {
-//                    $(this).remove();
-//                })
-//                .appendTo(elementsList)
-//                .text(content);
-//        };
-//
-//        $httpProvider.responseInterceptors.push(function ($timeout, $q) {
-//            return function (promise) {
-//                return promise.then(function (successResponse) {
-//                    if (successResponse.config.method.toUpperCase() != 'GET')
-//                        showMessage('Success', 'successMessage', 5000);
-//                    return successResponse;
-//
-//                }, function (errorResponse) {
-//                    switch (errorResponse.status) {
-//                        case 401:
-//                            showMessage('Wrong usename or password', 'errorMessage', 20000);
-//                            break;
-//                        case 403:
-//                            showMessage('You don\'t have the right to do this', 'errorMessage', 20000);
-//                            break;
-//                        case 500:
-//                            showMessage('Server internal error: ' + errorResponse.data, 'errorMessage', 20000);
-//                            break;
-//                        default:
-//                            showMessage('Error ' + errorResponse.status + ': ' + errorResponse.data, 'errorMessage', 20000);
-//                    }
-//                    return $q.reject(errorResponse);
-//                });
-//            };
-//        });
-//
-//        $compileProvider.directive('appMessages', function () {
-//            var directiveDefinitionObject = {
-//                link: function (scope, element, attrs) {
-//                    elementsList.push($(element));
-//                }
-//            };
-//            return directiveDefinitionObject;
-//        });
-//    });
+        GlobalErrors.handleHttpErrorResponse = function (response) {
+            switch (response.status) {
+                case 400:
+                    // BAD REQUEST - do nothing
+                    break;
+                case 401:
+                    // AUTHENTICATION failure - do nothing
+                    break;
+                case 403:
+                    $location.path("/error403");
+                    break;
+                default:
+                    $location.path("/error");
+            }
+        };
+
+        return GlobalErrors;
+    }])
+    .factory('GlobalMessages', function () {
+        var GlobalMessages = {};
+
+        var defaultGrowlOptions = {
+            type: 'error',
+            offset: {from: 'top', amount: 50},
+            align: 'center',
+            width: 'auto'
+        };
+
+        GlobalMessages.showErrorMessage = function (message) {
+            $.bootstrapGrowl(message, defaultGrowlOptions);
+        };
+
+        GlobalMessages.showWarnMessage = function (message) {
+            var growlOptions = angular.copy(defaultGrowlOptions);
+            growlOptions.type = 'warn';
+            $.bootstrapGrowl(message, growlOptions);
+        };
+
+        GlobalMessages.showInfoMessage = function (message) {
+            var growlOptions = angular.copy(defaultGrowlOptions);
+            growlOptions.type = 'info';
+            $.bootstrapGrowl(message, growlOptions);
+        };
+
+        return GlobalMessages;
+    });

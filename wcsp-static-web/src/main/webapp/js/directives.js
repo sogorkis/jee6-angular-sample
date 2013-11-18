@@ -148,13 +148,29 @@ angular.module('myApp.directives', [])
 
         };
     })
-    .directive("loader", ['$rootScope', function ($rootScope) {
+    .directive("loader", [function () {
         return function ($scope, element) {
+            var minLoadTime = 600;
+            var loaderElement = jQuery('#' + element.attr("id"));
+
             $scope.$on("loader_show", function () {
-                return jQuery('#' + element.attr("id")).show();
+                if (!loaderElement.is(':visible')) {
+                    loaderElement.data('lastShownTime', new Date().getTime());
+                }
+                return loaderElement.show();
             });
-            return $scope.$on("loader_hide", function () {
-                return jQuery('#' + element.attr("id")).hide();
+            $scope.$on("loader_hide", function () {
+                var lastShownTime = loaderElement.data('lastShownTime');
+                var loadingTime = new Date().getTime() - lastShownTime;
+
+                if (loadingTime > minLoadTime) {
+                    return loaderElement.hide();
+                }
+                else {
+                    setTimeout(function () {
+                        return loaderElement.hide();
+                    }, minLoadTime - loadingTime);
+                }
             });
         };
     }]);

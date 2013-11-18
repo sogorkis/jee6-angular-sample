@@ -2,7 +2,7 @@
 
 /* Controllers */
 angular.module('myApp.controllers', [])
-    .controller('RegisterCtrl', ['$scope', '$rootScope', '$location', 'Register', function ($scope, $rootScope, $location, Register) {
+    .controller('RegisterCtrl', ['$scope', '$rootScope', '$location', 'Register', 'GlobalMessages', function ($scope, $rootScope, $location, Register, GlobalMessages) {
 
         $scope.user = {};
 
@@ -14,7 +14,7 @@ angular.module('myApp.controllers', [])
                     $rootScope.$broadcast('userRegistered', user);
                 })
                 .failure(function (response) {
-                    if (response.validationErrors.email == 'nonUniqueEmail') {
+                    if (response.validationErrors && response.validationErrors.email == 'nonUniqueEmail') {
                         $scope.registrationForm.email.$setValidity('nonUniqueEmail', false);
 
                         var passedEmail = user.email;
@@ -25,8 +25,7 @@ angular.module('myApp.controllers', [])
                         });
                     }
                     else {
-                        // TODO: global validation error handling
-                        alert('Unexpected error: ' + response);
+                        GlobalMessages.showErrorMessage('Error' + response);
                     }
                 });
         };
@@ -35,7 +34,7 @@ angular.module('myApp.controllers', [])
             $scope.user = {};
         };
     }])
-    .controller('LoginCtrl', ['$scope', '$location', 'Authenticator', function ($scope, $location, Authenticator) {
+    .controller('LoginCtrl', ['$scope', '$location', 'Authenticator', 'GlobalMessages', function ($scope, $location, Authenticator, GlobalMessages) {
 
         $scope.userData = null;
         $scope.loggedIn = false;
@@ -45,8 +44,8 @@ angular.module('myApp.controllers', [])
                 .success(function (userData) {
                     setUserData(userData)
                 })
-                .failure(function (response) {
-                    alert(response);
+                .failure(function () {
+                    GlobalMessages.showErrorMessage('Invalid username/password. Please try again.');
                 });
         };
 
